@@ -5,9 +5,47 @@ namespace GradeBook
 {
 	public delegate void GradeAddedDelegate(object sender, EventArgs args);
 
-	public class Book
+	public class NamedObject : Object
 	{
-		public Book(string name)
+        public NamedObject(string name)
+        {
+			Name = name;
+        }
+
+        public string Name
+		{
+			get;
+			set;
+		}
+	}
+
+	public interface IBook
+	{
+		void AddGrade(double grade);
+		Statistics GetStatistics();
+		string Name { get; }
+		event GradeAddedDelegate GradeAdded;
+	}
+
+	public abstract class Book : NamedObject, IBook
+	{
+        protected Book(string name) : base(name)
+        {
+        }
+
+        public virtual event GradeAddedDelegate GradeAdded;
+
+        public abstract void AddGrade(double grade);
+
+        public virtual Statistics GetStatistics()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+	public class InMemoryBook : Book
+	{
+		public InMemoryBook(string name) : base(name)
 		{
 			grades = new List<double>();
 			Name = name;
@@ -30,7 +68,7 @@ namespace GradeBook
 		// 			break;
 		// 	}
 		// }
-		public void AddGrade(double grade)
+		public override void AddGrade(double grade)
 		{
 			//Gotta create a unite test to prove this logic!
 			if(grade <= 100 && grade >= 0)
@@ -47,9 +85,9 @@ namespace GradeBook
 			}
 		}
 
-		public event GradeAddedDelegate GradeAdded;
+		public override event GradeAddedDelegate GradeAdded;
 
-		public Statistics GetStatistics()
+		public override Statistics GetStatistics()
 		{
 			var result = new Statistics();
 			result.Average = 0.0;
@@ -92,12 +130,6 @@ namespace GradeBook
 
 		private List<double> grades;
 
-		public string Name
-		{
-			get;
-			set;
-		}
-
-		const string CATEGORY = "Science";
+		public const string CATEGORY = "Science";
 	}
 }
